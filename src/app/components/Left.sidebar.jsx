@@ -97,6 +97,7 @@ export default function Sidebar() {
     const savedTheme = localStorage.getItem('theme')
     
     if (savedExpanded) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpandedSections(JSON.parse(savedExpanded))
     }
     if (savedTopic) {
@@ -140,7 +141,6 @@ export default function Sidebar() {
   return (
     <div className="flex">
       <aside className="w-80 h-screen bg-white border-r border-gray-300 flex flex-col sticky top-0 dark:bg-gray-900 dark:border-gray-700">
-        {/* Sticky Header */}
         <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between gap-3 z-10 border-b border-gray-300 dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <Database className="w-7 h-7 text-black dark:text-white" />
@@ -158,7 +158,6 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
           {topicsData.map((section) => {
             const Icon = section.icon
@@ -219,10 +218,9 @@ export default function Sidebar() {
           })}
         </div>
 
-        {/* Sticky Footer */}
         <div className="sticky bottom-0 bg-white border-t border-gray-300 px-4 py-4 dark:bg-gray-800 dark:border-gray-700">
           <a
-            href="https://your-portfolio.com"
+            href="https://gyanprakash.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-black hover:bg-gray-800 dark:bg-white dark:hover:bg-gray-200 text-white dark:text-black font-medium transition-all"

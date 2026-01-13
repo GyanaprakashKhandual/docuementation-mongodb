@@ -73,5 +73,3 @@ To begin your MongoDB journey:
 4. Practice with real-world examples
 
 ---
-
-*Next Topic: [Installation and Setup](installation)*
