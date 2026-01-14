@@ -302,7 +302,7 @@ export default function Sidebar() {
       {isLoading && (
         <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200">
           <motion.div
-            className="h-full bg-blue-600"
+            className="h-full bg-gray-600"
             initial={{ width: "0%" }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.3 }}
@@ -375,7 +375,7 @@ export default function Sidebar() {
                                 ? "bg-gray-200 dark:bg-gray-700"
                                 : "hover:bg-gray-100 dark:hover:bg-gray-800"
                             } ${
-                              isLoading ? "opacity-50 cursor-not-allowed" : ""
+                              isLoading ? "opacity-50" : ""
                             }`}
                           >
                             {isLoading && clickedTopic === topic.id ? (

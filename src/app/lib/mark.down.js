@@ -6,6 +6,15 @@ const contentDirectory = path.join(process.cwd(), 'src/app/content')
 
 const fileNameMap = {
   'introduction': 'Intro.md',
+  'installation': 'Install.md',
+  'database-basics': 'Dbc.md',
+  'crud-operations': 'Crud.md',
+  'data-types': 'Datatype.md',
+  'querying': 'Basicquery.md',
+  'core-development': 'Coredev.md',
+  'troubleshooting': 'Advtro.md',
+  'custom-solutions': 'Custom.md'
+
 }
 
 export function getMarkdownContent(level, topic) {

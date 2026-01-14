@@ -17,12 +17,21 @@ const slugify = (text) => {
 const extractHeadingsFromMarkdown = (markdown) => {
   const headingRegex = /^(#{1,4})\s+(.+)$/gm;
   const headings = [];
+  const idCounts = {}; // Track ID occurrences
   let match;
 
   while ((match = headingRegex.exec(markdown)) !== null) {
     const level = match[1].length;
     const text = match[2];
-    const id = slugify(text);
+    let id = slugify(text);
+
+    // Handle duplicate IDs by appending a counter
+    if (idCounts[id] !== undefined) {
+      idCounts[id]++;
+      id = `${id}-${idCounts[id]}`;
+    } else {
+      idCounts[id] = 0;
+    }
 
     headings.push({
       id,
@@ -118,7 +127,7 @@ export default function RightSidebar({ content }) {
   );
 
   return (
-    <aside className="w-72 h-screen bg-white border-l border-gray-300 flex flex-col sticky top-0 dark:bg-gray-900 dark:border-gray-700 overflow-hidden">
+    <aside className="sidebar-scrollbar w-72 h-screen bg-white border-l border-gray-300 flex flex-col sticky top-0 dark:bg-gray-900 dark:border-gray-700 overflow-hidden">
       <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-300 dark:bg-gray-800 dark:border-gray-700 z-10">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-black dark:text-white" />
@@ -139,7 +148,7 @@ export default function RightSidebar({ content }) {
                 activeHeading === heading.id
                   ? "bg-gray-200 text-black dark:bg-gray-700 dark:text-white"
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              } ${isLoading ? "opacity-50" : ""}`}
               style={{
                 paddingLeft: `${1 + (heading.level - 2) * 0.75}rem`,
               }}

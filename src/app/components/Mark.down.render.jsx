@@ -87,6 +87,37 @@ const CodeBlock = ({ language, children }) => {
 
 export default function MarkdownRenderer({ content }) {
   const [activeHeading, setActiveHeading] = useState(null);
+  const [headingIds, setHeadingIds] = useState({});
+
+  // Initialize heading ID map to match Right.sidebar
+  useEffect(() => {
+    if (!content) return;
+
+    const headingRegex = /^(#{1,4})\s+(.+)$/gm;
+    const idCounts = {};
+    const ids = {};
+    let match;
+
+    while ((match = headingRegex.exec(content)) !== null) {
+      const text = match[2];
+      let id = slugify(text);
+
+      if (idCounts[id] !== undefined) {
+        idCounts[id]++;
+        id = `${id}-${idCounts[id]}`;
+      } else {
+        idCounts[id] = 0;
+      }
+
+      ids[text] = id;
+    }
+
+    setHeadingIds(ids);
+  }, [content]);
+
+  const getHeadingId = (text) => {
+    return headingIds[text] || slugify(text);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,7 +148,7 @@ export default function MarkdownRenderer({ content }) {
         components={{
           h1: ({ node, children, ...props }) => {
             const headingText = extractText(children);
-            const slug = slugify(headingText);
+            const slug = getHeadingId(headingText);
             return (
               <h1
                 id={slug}
@@ -131,7 +162,7 @@ export default function MarkdownRenderer({ content }) {
           },
           h2: ({ node, children, ...props }) => {
             const headingText = extractText(children);
-            const slug = slugify(headingText);
+            const slug = getHeadingId(headingText);
             return (
               <h2
                 id={slug}
@@ -145,7 +176,7 @@ export default function MarkdownRenderer({ content }) {
           },
           h3: ({ node, children, ...props }) => {
             const headingText = extractText(children);
-            const slug = slugify(headingText);
+            const slug = getHeadingId(headingText);
             return (
               <h3
                 id={slug}
@@ -159,7 +190,7 @@ export default function MarkdownRenderer({ content }) {
           },
           h4: ({ node, children, ...props }) => {
             const headingText = extractText(children);
-            const slug = slugify(headingText);
+            const slug = getHeadingId(headingText);
             return (
               <h4
                 id={slug}
@@ -190,7 +221,6 @@ export default function MarkdownRenderer({ content }) {
             />
           ),
           li: ({ node, children, ...props }) => {
-            const parent = node?.position?.start?.line;
             const isUnordered = node?.parent?.tagName === "ul";
 
             return (
