@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { FileText, ChevronRight } from "lucide-react";
+import { FileText, ChevronRight, Loader2 } from "lucide-react";
 
 const slugify = (text) => {
   return text
@@ -37,6 +37,8 @@ const extractHeadingsFromMarkdown = (markdown) => {
 export default function RightSidebar({ content }) {
   const [headings, setHeadings] = useState([]);
   const [activeHeading, setActiveHeading] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingHeading, setLoadingHeading] = useState(null);
 
   useEffect(() => {
     if (!content) return;
@@ -75,6 +77,9 @@ export default function RightSidebar({ content }) {
 
   const handleHeadingClick = useCallback(
     (id) => {
+      setIsLoading(true);
+      setLoadingHeading(id);
+
       let element = document.getElementById(id);
 
       if (!element) {
@@ -89,12 +94,23 @@ export default function RightSidebar({ content }) {
             if (element) {
               setActiveHeading(id);
               element.scrollIntoView({ behavior: "smooth", block: "start" });
+              setTimeout(() => {
+                setIsLoading(false);
+                setLoadingHeading(null);
+              }, 500);
+            } else {
+              setIsLoading(false);
+              setLoadingHeading(null);
             }
           }
         }, 100);
       } else {
         setActiveHeading(id);
         element.scrollIntoView({ behavior: "smooth", block: "start" });
+        setTimeout(() => {
+          setIsLoading(false);
+          setLoadingHeading(null);
+        }, 500);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -118,18 +134,23 @@ export default function RightSidebar({ content }) {
             <motion.button
               key={heading.id}
               onClick={() => handleHeadingClick(heading.id)}
+              disabled={isLoading}
               className={`w-full flex items-start gap-2 px-4 py-3 rounded-lg transition-all text-left text-sm font-medium ${
                 activeHeading === heading.id
                   ? "bg-gray-200 text-black dark:bg-gray-700 dark:text-white"
                   : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-              }`}
+              } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               style={{
                 paddingLeft: `${1 + (heading.level - 2) * 0.75}rem`,
               }}
-              whileHover={{ x: 4 }}
+              whileHover={!isLoading ? { x: 4 } : {}}
               transition={{ duration: 0.2 }}
             >
-              <ChevronRight className="w-4 h-4 mt-0.5 shrink-0 text-gray-400 dark:text-gray-500" />
+              {isLoading && loadingHeading === heading.id ? (
+                <Loader2 className="w-4 h-4 mt-0.5 shrink-0 text-gray-400 dark:text-gray-500 animate-spin" />
+              ) : (
+                <ChevronRight className="w-4 h-4 mt-0.5 shrink-0 text-gray-400 dark:text-gray-500" />
+              )}
               <span className="line-clamp-2">{heading.text}</span>
             </motion.button>
           ))

@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { Check, Copy, ExternalLink } from "lucide-react";
 
 const slugify = (text) => {
   return text
@@ -35,6 +36,55 @@ const extractText = (children) => {
   return String(children || "");
 };
 
+const CodeBlock = ({ language, children }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(String(children));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="relative group mb-6">
+      <div className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-t-lg border-b border-gray-700">
+        <span className="text-xs font-mono text-gray-400 uppercase tracking-wide">
+          {language || "code"}
+        </span>
+        <button
+          onClick={handleCopy}
+          className="flex items-center gap-2 px-3 py-1 text-xs text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded transition-all"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3 h-3" />
+              Copied!
+            </>
+          ) : (
+            <>
+              <Copy className="w-3 h-3" />
+              Copy
+            </>
+          )}
+        </button>
+      </div>
+      <SyntaxHighlighter
+        style={oneDark}
+        language={language}
+        PreTag="div"
+        className="rounded-t-none! rounded-b-lg! mt-0! mb-0!"
+        customStyle={{
+          margin: 0,
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+        }}
+      >
+        {String(children).replace(/\n$/, "")}
+      </SyntaxHighlighter>
+    </div>
+  );
+};
+
 export default function MarkdownRenderer({ content }) {
   const [activeHeading, setActiveHeading] = useState(null);
 
@@ -61,7 +111,7 @@ export default function MarkdownRenderer({ content }) {
   }, []);
 
   return (
-    <div className="markdown-content dark:text-white">
+    <div className="markdown-content max-w-4xl">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -72,7 +122,7 @@ export default function MarkdownRenderer({ content }) {
               <h1
                 id={slug}
                 data-heading="true"
-                className="text-4xl font-bold text-black dark:text-white mb-6 mt-8 scroll-mt-24 py-3 px-4 rounded-lg transition-all duration-200"
+                className="text-4xl font-bold text-gray-900 mb-6 mt-8 pb-3 border-b-2 border-gray-200 scroll-mt-24 transition-all duration-200"
                 {...props}
               >
                 {children}
@@ -86,7 +136,7 @@ export default function MarkdownRenderer({ content }) {
               <h2
                 id={slug}
                 data-heading="true"
-                className="text-3xl font-semibold text-black dark:text-white mb-4 mt-6 py-3 px-4 rounded-lg scroll-mt-24 transition-all duration-200"
+                className="text-3xl font-semibold text-gray-900 mb-4 mt-8 pb-2 border-b border-gray-200 scroll-mt-24 transition-all duration-200"
                 {...props}
               >
                 {children}
@@ -100,49 +150,70 @@ export default function MarkdownRenderer({ content }) {
               <h3
                 id={slug}
                 data-heading="true"
-                className="text-2xl font-semibold text-black dark:text-white mb-3 mt-4 py-3 px-4 rounded-lg scroll-mt-24 transition-all duration-200"
+                className="text-2xl font-semibold text-gray-900 mb-3 mt-6 scroll-mt-24 transition-all duration-200"
                 {...props}
               >
                 {children}
               </h3>
             );
           },
+          h4: ({ node, children, ...props }) => {
+            const headingText = extractText(children);
+            const slug = slugify(headingText);
+            return (
+              <h4
+                id={slug}
+                data-heading="true"
+                className="text-xl font-semibold text-gray-900 mb-2 mt-4 scroll-mt-24"
+                {...props}
+              >
+                {children}
+              </h4>
+            );
+          },
           p: ({ node, ...props }) => (
             <p
-              className="text-black dark:text-white leading-relaxed mb-4"
+              className="text-gray-700 leading-relaxed mb-4 text-base"
               {...props}
             />
           ),
           ul: ({ node, ...props }) => (
             <ul
-              className="list-disc pl-6 text-black dark:text-white space-y-2 mb-4"
+              className="list-none pl-0 text-gray-700 space-y-2 mb-6"
               {...props}
             />
           ),
           ol: ({ node, ...props }) => (
             <ol
-              className="list-decimal pl-6 text-black dark:text-white space-y-2 mb-4"
+              className="list-decimal pl-6 text-gray-700 space-y-2 mb-6 marker:text-gray-500"
               {...props}
             />
           ),
-          li: ({ node, ...props }) => (
-            <li className="text-black dark:text-white" {...props} />
-          ),
+          li: ({ node, children, ...props }) => {
+            const parent = node?.position?.start?.line;
+            const isUnordered = node?.parent?.tagName === "ul";
+
+            return (
+              <li
+                className={`text-gray-700 ${
+                  isUnordered ? "flex items-start gap-3" : ""
+                }`}
+                {...props}
+              >
+                {isUnordered && (
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 shrink-0" />
+                )}
+                <span className="flex-1">{children}</span>
+              </li>
+            );
+          },
           code: ({ node, inline, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             return !inline && match ? (
-              <SyntaxHighlighter
-                style={oneDark}
-                language={match[1]}
-                PreTag="div"
-                className="rounded-lg mb-4"
-                {...props}
-              >
-                {String(children).replace(/\n$/, "")}
-              </SyntaxHighlighter>
+              <CodeBlock language={match[1]}>{children}</CodeBlock>
             ) : (
               <code
-                className="bg-gray-100 dark:bg-gray-800 text-black dark:text-white px-2 py-1 rounded text-sm"
+                className="bg-gray-100 text-pink-600 px-2 py-0.5 rounded font-mono text-sm border border-gray-200"
                 {...props}
               >
                 {children}
@@ -151,35 +222,55 @@ export default function MarkdownRenderer({ content }) {
           },
           blockquote: ({ node, ...props }) => (
             <blockquote
-              className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 italic text-gray-700 dark:text-gray-300 my-4"
+              className="border-l-4 border-blue-500 bg-blue-50 pl-6 pr-4 py-4 italic text-gray-700 my-6 rounded-r-lg"
               {...props}
             />
           ),
           table: ({ node, ...props }) => (
-            <div className="overflow-x-auto mb-4">
+            <div className="overflow-x-auto mb-6 rounded-lg border border-gray-200 shadow-sm">
               <table
-                className="min-w-full border border-gray-300 dark:border-gray-600"
+                className="min-w-full divide-y divide-gray-200"
                 {...props}
               />
             </div>
           ),
+          thead: ({ node, ...props }) => (
+            <thead className="bg-gray-50" {...props} />
+          ),
+          tbody: ({ node, ...props }) => (
+            <tbody className="bg-white divide-y divide-gray-200" {...props} />
+          ),
           th: ({ node, ...props }) => (
             <th
-              className="border border-gray-300 dark:border-gray-600 px-4 py-2 bg-gray-50 dark:bg-gray-800 text-black dark:text-white font-semibold"
+              className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider"
               {...props}
             />
           ),
           td: ({ node, ...props }) => (
-            <td
-              className="border border-gray-300 dark:border-gray-600 px-4 py-2 text-black dark:text-white"
-              {...props}
-            />
+            <td className="px-6 py-4 text-sm text-gray-700" {...props} />
           ),
-          a: ({ node, ...props }) => (
+          a: ({ node, href, children, ...props }) => (
             <a
-              className="text-black dark:text-blue-400 underline hover:text-gray-600 dark:hover:text-blue-300"
+              href={href}
+              className="text-blue-600 hover:text-blue-700 underline decoration-blue-400 decoration-2 underline-offset-2 transition-colors inline-flex items-center gap-1 group"
+              target={href?.startsWith("http") ? "_blank" : undefined}
+              rel={href?.startsWith("http") ? "noopener noreferrer" : undefined}
               {...props}
-            />
+            >
+              {children}
+              {href?.startsWith("http") && (
+                <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+              )}
+            </a>
+          ),
+          hr: ({ node, ...props }) => (
+            <hr className="my-8 border-t-2 border-gray-200" {...props} />
+          ),
+          strong: ({ node, ...props }) => (
+            <strong className="font-semibold text-gray-900" {...props} />
+          ),
+          em: ({ node, ...props }) => (
+            <em className="italic text-gray-700" {...props} />
           ),
         }}
       >

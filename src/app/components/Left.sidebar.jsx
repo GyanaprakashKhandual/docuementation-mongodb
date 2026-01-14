@@ -13,6 +13,7 @@ import {
   Zap,
   Cpu,
   Github,
+  Loader2,
 } from "lucide-react";
 
 const topicsData = [
@@ -227,6 +228,8 @@ const topicsData = [
 export default function Sidebar() {
   const [expandedSections, setExpandedSections] = useState({});
   const [clickedTopic, setClickedTopic] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -270,11 +273,43 @@ export default function Sidebar() {
   const handleTopicClick = (slug, topicId) => {
     setClickedTopic(topicId);
     localStorage.setItem("clickedTopic", topicId);
+    setIsLoading(true);
+    setProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return prev + 10;
+      });
+    }, 100);
+
     router.push(`/learn/${slug}`);
+
+    setTimeout(() => {
+      setProgress(100);
+      setTimeout(() => {
+        setIsLoading(false);
+        setProgress(0);
+      }, 200);
+    }, 1000);
   };
 
   return (
     <div className="flex">
+      {isLoading && (
+        <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-gray-200">
+          <motion.div
+            className="h-full bg-blue-600"
+            initial={{ width: "0%" }}
+            animate={{ width: `${progress}%` }}
+            transition={{ duration: 0.3 }}
+          />
+        </div>
+      )}
+
       <aside className="w-80 h-screen bg-white border-r border-gray-300 flex flex-col sticky top-0 dark:bg-gray-900 dark:border-gray-700">
         <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between gap-3 z-10 border-b border-gray-300 dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center gap-3">
@@ -284,7 +319,7 @@ export default function Sidebar() {
             </h1>
           </div>
           <a
-            href="https://github.com/gyanprakash03"
+            href="https://github.com/GyanaprakashKhandual"
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
@@ -334,13 +369,20 @@ export default function Sidebar() {
                             onClick={() =>
                               handleTopicClick(topic.slug, topic.id)
                             }
+                            disabled={isLoading}
                             className={`w-full flex items-center gap-2 px-4 py-2.5 rounded-lg transition-all text-left ${
                               clickedTopic === topic.id
                                 ? "bg-gray-200 dark:bg-gray-700"
                                 : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                            } ${
+                              isLoading ? "opacity-50 cursor-not-allowed" : ""
                             }`}
                           >
-                            <ChevronRight className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                            {isLoading && clickedTopic === topic.id ? (
+                              <Loader2 className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400 animate-spin" />
+                            ) : (
+                              <ChevronRight className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                            )}
                             <span className="text-sm text-black dark:text-white">
                               {topic.title}
                             </span>

@@ -7,7 +7,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 min-h-screen">
-      <div className="flex-1 max-w-4xl mx-auto">
+      <div className="flex-1 max-w-4xl mx-auto px-6 py-8 md:px-8 md:py-10 lg:px-12 lg:py-12">
         {markdownData && <MarkdownRenderer content={markdownData.content} />}
       </div>
 
