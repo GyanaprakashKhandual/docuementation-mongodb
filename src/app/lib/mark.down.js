@@ -13,7 +13,14 @@ const fileNameMap = {
   'querying': 'Basicquery.md',
   'core-development': 'Coredev.md',
   'troubleshooting': 'Advtro.md',
-  'custom-solutions': 'Custom.md'
+  'custom-solutions': 'Custom.md',
+  'advanced-querying': 'Advancequery.md',
+  'indexes': 'Indexes.md',
+  'aggregation-basics': 'Aggregation.md',
+  'data-modeling': 'Modeling.md',
+  'transactions': 'Transactions.md',
+  'replica-sets': 'Replica.md',
+  'performance': 'Peropt.md',
 
 }
 
