@@ -15,6 +15,7 @@ import {
   Github,
   Loader2,
 } from "lucide-react";
+import { Tooltip } from "./Tooltip.util";
 
 const topicsData = [
   {
@@ -310,7 +311,7 @@ export default function Sidebar() {
         </div>
       )}
 
-      <aside className="w-80 h-screen bg-white border-r border-gray-300 flex flex-col sticky top-0 dark:bg-gray-900 dark:border-gray-700">
+      <aside className="sidebar-scrollbar w-80 h-screen bg-white border-r border-gray-300 flex flex-col sticky top-0 dark:bg-gray-900 dark:border-gray-700">
         <div className="sticky top-0 bg-white px-6 py-4 flex items-center justify-between gap-3 z-10 border-b border-gray-300 dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <Database className="w-7 h-7 text-black dark:text-white" />
@@ -318,14 +319,16 @@ export default function Sidebar() {
               MongoDB
             </h1>
           </div>
-          <a
-            href="https://github.com/GyanaprakashKhandual"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
-          >
-            <Github className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-          </a>
+          <Tooltip content="Visit GitHub" position="bottom">
+            <a
+              href="https://github.com/GyanaprakashKhandual"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
+            >
+              <Github className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            </a>
+          </Tooltip>
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-6 space-y-2">
