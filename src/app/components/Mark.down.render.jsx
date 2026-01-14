@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Check, Copy, ExternalLink } from "lucide-react";
+import { Tooltip } from "./Tooltip.util";
 
 const slugify = (text) => {
   return text
@@ -47,40 +46,37 @@ const CodeBlock = ({ language, children }) => {
 
   return (
     <div className="relative group mb-6">
-      <div className="flex items-center justify-between bg-gray-800 px-4 py-2 rounded-t-lg border-b border-gray-700">
-        <span className="text-xs font-mono text-gray-400 uppercase tracking-wide">
+      <div className="flex items-center justify-between bg-zinc-900 px-4 py-2.5 rounded-t-lg border-b border-zinc-800">
+        <span className="text-xs font-mono text-zinc-400 uppercase tracking-wide">
           {language || "code"}
         </span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-2 px-3 py-1 text-xs text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded transition-all"
+          className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 rounded transition-all duration-200"
+          aria-label="Copy code"
         >
           {copied ? (
             <>
-              <Check className="w-3 h-3" />
-              Copied!
+              <Tooltip content="Copied" position="bottom">
+                <Check className="w-3.5 h-3.5" />
+              </Tooltip>
             </>
           ) : (
             <>
-              <Copy className="w-3 h-3" />
-              Copy
+              <Tooltip content="Copy" position="bottom">
+                <Copy className="w-3.5 h-3.5" />
+              </Tooltip>
             </>
           )}
         </button>
       </div>
-      <SyntaxHighlighter
-        style={oneDark}
-        language={language}
-        PreTag="div"
-        className="rounded-t-none! rounded-b-lg! mt-0! mb-0!"
-        customStyle={{
-          margin: 0,
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: 0,
-        }}
-      >
-        {String(children).replace(/\n$/, "")}
-      </SyntaxHighlighter>
+      <div className="bg-zinc-950 rounded-b-lg overflow-x-auto">
+        <pre className="p-4 m-0 text-sm leading-relaxed">
+          <code className="font-mono text-zinc-100 block whitespace-pre">
+            {String(children).replace(/\n$/, "")}
+          </code>
+        </pre>
+      </div>
     </div>
   );
 };
